@@ -12,7 +12,7 @@ jobs:
       - name: use node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - run: npm install
       - run: npm run build
@@ -30,7 +30,7 @@ jobs:
       - name: use node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - run: npm install
       - run: npm test
@@ -71,7 +71,7 @@ jobs:
       - name: use node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
         #configuro le pagine github per la distribuzione usando configure-pages; poi con npm install e build carichiamo gli artefatti
         #ogni artefatto è un piccolo pacchetto/raccolta di file che esce dal processo di compilazione pronto per essere condiviso e distribuito
