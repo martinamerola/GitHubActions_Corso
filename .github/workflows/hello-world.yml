@@ -1,0 +1,18 @@
+name: hello-world
+#esempio caso di push event che attiverà il workflow ogni qual volta verrà svolto il push di un commit del progetto
+on: push
+
+#definiamo i jobs per definire ciò che deve accadere ogni volta che si pusha
+jobs:
+  #nome del job
+  hello-world-jobs:
+
+    #se si sceglie un runner ospitato da GitHub si può scegliere la versione del sistema operativo oppure la versione più stabile recente
+    #solitamente sono tipi di runner con funzionalità avanzate e più numerose
+    runs-on: windows-latest
+    steps:
+      - name: check out repository code
+        uses: actions/checkout@v4
+
+      - run: echo "$(cat hello_world.txt)"
+
