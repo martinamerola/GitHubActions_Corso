@@ -35,8 +35,68 @@ jobs:
       - run: npm install
       - run: npm test
 
-#definisco due job con stessi run e steps (eccetto alla fine) perché si tratta di 2 lavori completamente indipendenti.
-#pertanto i passaggi sono circoscritti localmente ed essere ripetuti per ogni lavoro -> posso prendere decisioni diverse per ogni lavoro
+  #definisco due job con stessi run e steps (eccetto alla fine) perché si tratta di 2 lavori completamente indipendenti.
+  #pertanto i passaggi sono circoscritti localmente ed essere ripetuti per ogni lavoro -> posso prendere decisioni diverse per ogni lavoro
+
+
+  deploy:
+    #è necessario che il lavoro 'test' venga eseguito prima di eseguire 'deploy'
+    needs: test
+
+    #definisco i permessi: determina cosa può fare il lavoro 'deploy'
+    #in particolare sto dando i permessi di scrittura nel repository
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    #definire l'ambiente di distribuzione: si passa il nome dell'ambiente target e l'URL di distribuzione
+    environment:
+      name: production
+      url: ${{ steps.deployment.outputs.page_url }}
+      
+  
+    runs-on: windows-latest
+    
+    #controllare il repository tramite autenticazione anche perché sto effettuando operazioni di scrittura
+    #quindi, controllare prima il repo recuperando tutte le informazioni in esso contenute
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          #token fornito da Actions in fase di autenticazione: fornisce tutte le autorizzazioni per completare correttamente il lavoro
+
+        #ogni job è indipendente: quindi si ripete l'operazione di creazione nodo
+      - name: use node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+        #configuro le pagine github per la distribuzione usando configure-pages; poi con npm install e build carichiamo gli artefatti
+        #ogni artefatto è un piccolo pacchetto/raccolta di file che esce dal processo di compilazione pronto per essere condiviso e distribuito
+        #con upload-pages per concludere il sito creato da Next.js in fase di compilazione npm:
+        #per farlo indirizziamo l'azione nel percorso di uscita: './out'
+        #Quindi l'azione di caricamento pagine si attiva e invia l'artefatto direttamente a Pages per la distribuzione
+      - name: configure github pages
+        uses: actions/configure-pages@v4
+        with:
+          static_site_generator: next
+      - run: npm install
+      - run: npm run build
+      - name: upload artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './out'
+
+        #qui si distribuisce l'app su Pages. L'azione di distribuzione interviene per svolgere questo job
+        #prende gli artefatti preparati e caricati nei passaggi precedenti e li inviano direttamente a Pages per la distribuzione
+      - name: deploy
+        #assegno un ID per il passaggio di deploy: è importante per rendere univoco il laoro di deploy per rifarci ad esso nel futuro
+        #questo ID è usato per catturare l'URL del sito utilizzando steps.deployment.outputs.page_url
+        #completato questo passaggio il contenuto statico Next.js sarà attivo e pronto per essere visualizzato sulle pagine GitHub
+        id: deployment
+        uses: actions/deploy-pages@v4
 
 
 
