@@ -16,3 +16,28 @@ jobs:
 
       - run: npm install
       - run: npm run build
+
+  test:
+    #ha senso eseguire un test solo su una build riuscita
+    #possiamo definirlo nel nostro job includendo la parola chiave needs -> forza i run del lavoro ad essere eseguiti in ordine sequenziale
+    #il job corrente è dipendente dal successo del job precedentemente eseguito.
+    needs: build
+    runs-on: windows-latest
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+      - name: use node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - run: npm install
+      - run: npm test
+
+#definisco due job con stessi run e steps (eccetto alla fine) perché si tratta di 2 lavori completamente indipendenti.
+#pertanto i passaggi sono circoscritti localmente ed essere ripetuti per ogni lavoro -> posso prendere decisioni diverse per ogni lavoro
+
+
+
+
